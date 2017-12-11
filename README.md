@@ -23,5 +23,5 @@ sudo cp target/release/rsw /usr/local/bin/
 - rsw new project 创建一个静态博客项目
 - rsw build 编译src目录下的文件到build
 
-### 案例
+### 举个栗子
 [rsw-example](https://github.com/tjz101/rsw-example)
