@@ -1,0 +1,13 @@
+[package]
+name = "rsw"
+version = "0.1.0"
+authors = ["dev-tang <dev-tang@foxmail.com>"]
+
+[dependencies]
+regex = "0.2"
+yaml-rust = "0.3"
+comrak = "0.2.5"
+clap = {version="2.29.0", features=["yaml"]}
+
+[profile.release]
+lto = true

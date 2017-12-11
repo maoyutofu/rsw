@@ -1,0 +1,14 @@
+name: RustWriter
+version: "0.1.0"
+author: dev-tang <dev-tang@outlook.com>
+about: Simple, free and happy
+subcommands:
+    - new:
+        about: new project
+        args:
+            - PROJECT:
+                help: Project name
+                required: true
+                index: 1
+    - build:
+          about: build project
