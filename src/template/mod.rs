@@ -77,7 +77,7 @@ fn render_template(public: &str, yaml_docs: Vec<Yaml>, html_str: &str) -> String
     }
 
     // 将author渲染到模板中
-    let re_author= Regex::new(r"\{\{\s*author\s*\}\}").unwrap();
+    let re_author = Regex::new(r"\{\{\s*author\s*\}\}").unwrap();
     template_content = String::from(re_author.replace_all(template_content.as_str(), yaml_doc["author"].as_str().unwrap_or("RustWriter")));
 
     // 将title渲染到模板中

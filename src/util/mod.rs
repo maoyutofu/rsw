@@ -1,3 +1,7 @@
+extern crate regex;
+
+use self::regex::Regex;
+
 use std::error::Error;
 use std::fs;
 use std::fs::File;
@@ -27,12 +31,12 @@ pub fn write_file(file_name: &str, content: &str) {
 }
 
 static MD_STR: &str = r#"---
-title: MyBlog 
+title: {{ project }} 
 author: RustWriter
 template: index
 ---
 
-# MyBlog
+# {{ project }}
 This is written in rust writer. Simple, free and happy."#;
 
 static HTML_STR: &str = r#"<!DOCTYPE html>
@@ -59,9 +63,11 @@ pub fn init_work_space(project_name: &str, public_dir: &str, src_dir: &str) {
         let project_public = format!("{}/{}", project_name, public_dir);
         create_not_exists(&project_src);
         create_not_exists(&project_public);
+
         let index_md_name = format!("{}/{}", &project_src, "index.md");
-        
-        write_file(&index_md_name, MD_STR);
+        let re_project = Regex::new(r"\{\{\s*project\s*\}\}").unwrap();
+        let md_text = String::from(re_project.replace_all(MD_STR, project_name));
+        write_file(&index_md_name, &md_text);
         let index_tpl_name = format!("{}/{}", &project_public, "__index.html");
         
         write_file(&index_tpl_name, HTML_STR);
