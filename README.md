@@ -24,4 +24,4 @@ sudo cp target/release/rsw /usr/local/bin/
 - rsw build 编译src目录下的文件到build
 
 ### 举个栗子
-[rsw-example](http://dev-tang.gitee.io/pages/rsw-example/) - [src](https://github.com/tjz103/rsw-example)
+[rsw-example](http://dev-tang.gitee.io/pages/rsw-example/) - [src](https://github.com/tjz101/rsw-example)
