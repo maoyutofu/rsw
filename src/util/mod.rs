@@ -3,6 +3,7 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::process;
 
 pub fn create_not_exists(dir: &str) {
     if !Path::new(dir).exists() {
@@ -23,4 +24,46 @@ pub fn write_file(file_name: &str, content: &str) {
         Err(why) => panic!("write {}: {}", file_name, why.description()),
         Ok(_) => println!("write {}", file_name),
     };
+}
+
+static MD_STR: &str = r#"---
+title: MyBlog 
+author: RustWriter
+template: index
+---
+
+# MyBlog
+This is written in rust writer. Simple, free and happy."#;
+
+static HTML_STR: &str = r#"<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="{{ author }}" />
+    <title>{{ title }}</title>
+</head>
+<body>
+    {{ content }}
+</body>
+</html>"#;
+
+pub fn init_work_space(project_name: &str, public_dir: &str, src_dir: &str) {
+    let path = Path::new(project_name);
+        if path.exists() {
+            println!("{} exists", project_name);
+            process::exit(0x0100);
+        }
+        let project_src = format!("{}/{}", project_name, src_dir);
+        let project_public = format!("{}/{}", project_name, public_dir);
+        create_not_exists(&project_src);
+        create_not_exists(&project_public);
+        let index_md_name = format!("{}/{}", &project_src, "index.md");
+        
+        write_file(&index_md_name, MD_STR);
+        let index_tpl_name = format!("{}/{}", &project_public, "__index.html");
+        
+        write_file(&index_tpl_name, HTML_STR);
+        println!("{} created successfully", project_name);
 }

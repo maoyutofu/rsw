@@ -10,10 +10,9 @@ use rsw::template;
 use regex::Regex;
 use clap::App;
 
-use std::error::Error;
 use std::fs;
 use std::path::Path;
-use std::process;
+use std::error::Error;
 
 fn copy_public(target: &str, src: &str) {
     let dir = Path::new(src);
@@ -79,41 +78,8 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("new") {
         let project_name = matches.value_of("PROJECT").unwrap();
-        let path = Path::new(project_name);
-        if path.exists() {
-            println!("{} exists", project_name);
-            process::exit(0x0100);
-        }
-        let project_src = format!("{}/{}", project_name, SRC_DIR);
-        let project_public = format!("{}/{}", project_name, PUBLIC_DIR);
-        create_not_exists(&project_src);
-        create_not_exists(&project_public);
-        let index_md_name = format!("{}/{}", &project_src, "index.md");
-        let md = r#"---
-title: MyBlog 
-author: RustWriter
-template: index
----
-
-# MyBlog
-This is written in rust writer. Simple, free and happy."#;
-        write_file(&index_md_name, md);
-        let index_tpl_name = format!("{}/{}", &project_public, "__index.html");
-        let html = r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="author" content="{{ author }}" />
-    <title>{{ title }}</title>
-</head>
-<body>
-    {{ content }}
-</body>
-</html>"#;
-        write_file(&index_tpl_name, html);
-        println!("{} created successfully", project_name);
+        // 创建项目并初始化工作空间
+        init_work_space(project_name, PUBLIC_DIR, SRC_DIR);
     }
 
     if let Some(_) = matches.subcommand_matches("build") {
