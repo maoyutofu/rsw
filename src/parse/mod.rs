@@ -44,7 +44,7 @@ pub fn parse_md_file(build: &str, path: &Path) -> MdFile {
     }
     // `file`离开作用域，文件将被关闭
 
-    let re_md = Regex::new(r"^---([\s\S]*)---([\s\S]*)").unwrap();
+    let re_md = Regex::new(r"^---([\s\S]*?)---([\s\S]*)").unwrap();
     let caps = re_md.captures(content.as_str()).unwrap();
     let yaml_str = caps.get(1).unwrap().as_str();
     // 提取正文markdown内容
