@@ -4,18 +4,18 @@
 ### 安装
 1. 源码方式安装
     - 下载源代码
-```
-git clone https://github.com/tjz101/rsw.git
-cd rsw
-```
+	```
+	git clone https://github.com/tjz101/rsw.git
+	cd rsw
+	```
     - 编译代码
-```
-cargo build --release
-```
+	```
+	cargo build --release
+	```
     - Linux 安装
-```
-sudo cp target/release/rsw /usr/local/bin/
-```
+	```
+	sudo cp target/release/rsw /usr/local/bin/
+	```
 2.  二进制方式安装
     - 从 [release](https://github.com/tjz101/rsw/releases) 页面中下载对应平台的可执行文件压缩包解压后就可以使用。
 	
