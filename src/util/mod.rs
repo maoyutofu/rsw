@@ -8,6 +8,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::process;
+use std::env::consts::OS;
 
 pub fn create_not_exists(dir: &str) {
     if !Path::new(dir).exists() {
@@ -72,4 +73,14 @@ pub fn init_work_space(project_name: &str, public_dir: &str, src_dir: &str) {
         
         write_file(&index_tpl_name, HTML_STR);
         println!("{} created successfully", project_name);
+}
+
+pub fn convert_path(path_str: &str) -> String{
+    let mut result = String::new();
+    if OS == "windows" {
+        result.push_str(path_str.replace("\\", "/").as_str());
+    } else {
+        result.push_str(path_str);
+    }
+    result
 }

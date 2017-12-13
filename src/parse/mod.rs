@@ -1,5 +1,7 @@
 extern crate regex;
 
+use util::*;
+
 use self::regex::Regex;
 
 use std::error::Error;
@@ -53,12 +55,13 @@ pub fn parse_md_file(build: &str, path: &Path) -> MdFile {
     let re_rsw = Regex::new(r"(\(rsw://(?P<url_str>\S+)\.md(?P<query_str>[\S]*)\))").unwrap();
     md_str = String::from(re_rsw.replace_all(&md_str, "($url_str.html$query_str)"));
 
-    let file_name = path.to_str().unwrap();
+    // let file_name = path.to_str().unwrap();
+    let file_name = convert_path(path.to_str().unwrap());
     // 将src路径转成build路径
     let file_names:Vec<&str> = file_name.splitn(2, '/').collect();
     let target_file = format!("{}/{}", build, file_names[1]);
     // 将md扩展转成html
     let target_files:Vec<&str> = target_file.rsplitn(2, '.').collect();
     let target_file_name = format!("{}{}", target_files[1], ".html");
-    return MdFile::new(file_name, target_file_name.as_str(), yaml_str, &md_str);
+    return MdFile::new(file_name.clone(), target_file_name, String::from(yaml_str), md_str);
 }

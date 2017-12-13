@@ -20,12 +20,12 @@ fn copy_public(target: &str, src: &str) {
     for entry in fs::read_dir(dir).expect("read_dir call failed") {
         if let Ok(entry) = entry {
             let child = entry.path();
-            let file_name = child.to_str().unwrap();
+            let file_name = convert_path(child.to_str().unwrap());
 
             if child.is_file() {
                 // 判断如果是模板文件就忽略
                 let re_template_file = Regex::new(r".*__.*\.html$").unwrap();
-                if re_template_file.is_match(file_name) {
+                if re_template_file.is_match(file_name.as_str()) {
                     continue;
                 }
                 // 拆分源文件名，方便后面组合成目标文件名
@@ -36,13 +36,13 @@ fn copy_public(target: &str, src: &str) {
                 // 如果要复制的目标目录不存在，就创建
                 create_not_exists(dirs[1]);
                 // 复制文件
-                match fs::copy(file_name, &new_file) {
+                match fs::copy(file_name.clone(), &new_file) {
                     Err(why) => panic!("{} -> {}: {}", file_name, new_file, why.description()),
                     Ok(_) => println!("{} -> {}", file_name, new_file),
                 }
             } else {
                 // 如果是目录，则继续递归
-                copy_public(target, file_name); 
+                copy_public(target, &file_name); 
             }
         }
     }
