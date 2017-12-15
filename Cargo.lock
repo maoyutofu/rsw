@@ -125,7 +125,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rsw"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "clap 2.29.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "comrak 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",

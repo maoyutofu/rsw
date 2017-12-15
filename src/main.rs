@@ -14,7 +14,7 @@ use std::fs;
 use std::path::Path;
 use std::error::Error;
 
-fn copy_public(target: &str, src: &str) {
+fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
     let dir = Path::new(src);
     // 遍历目录
     for entry in fs::read_dir(dir).expect("read_dir call failed") {
@@ -23,9 +23,8 @@ fn copy_public(target: &str, src: &str) {
             let file_name = convert_path(child.to_str().unwrap());
 
             if child.is_file() {
-                // 判断如果是模板文件就忽略
-                let re_template_file = Regex::new(r".*__.*\.html$").unwrap();
-                if re_template_file.is_match(file_name.as_str()) {
+                // 忽略匹配到的文件
+                if re_ignore.is_match(file_name.as_str()) {
                     continue;
                 }
                 // 拆分源文件名，方便后面组合成目标文件名
@@ -42,7 +41,7 @@ fn copy_public(target: &str, src: &str) {
                 }
             } else {
                 // 如果是目录，则继续递归
-                copy_public(target, &file_name); 
+                copy_files(re_ignore, target, &file_name); 
             }
         }
     }
@@ -56,6 +55,10 @@ fn loop_parse(build: &str, public: &str, src: &str) {
             let child = entry.path();
             let file_name = child.to_str().unwrap();
             if child.is_file() {
+                let re_md_file = Regex::new(r".*\.md$").unwrap();
+                if !re_md_file.is_match(file_name) {
+                    continue;
+                }
                 let md_file = parse::parse_md_file(build, &child);
                 template::render(public, md_file);
             } else {
@@ -84,7 +87,11 @@ fn main() {
 
     if let Some(_) = matches.subcommand_matches("build") {
         // copy public下的资源文件到build目录，但会忽略模板文件
-        copy_public(BUILD_DIR, PUBLIC_DIR);
+        let re_template_file = Regex::new(r".*__.*\.html$").unwrap();
+        copy_files(&re_template_file, BUILD_DIR, PUBLIC_DIR);
+        let re_md_file = Regex::new(r".*\.md$").unwrap();
+        // copy src下的资源文件到build目录，但会忽略.md文件
+        copy_files(&re_md_file, BUILD_DIR, SRC_DIR);
         // 解析md文件
         loop_parse(BUILD_DIR, PUBLIC_DIR, SRC_DIR);
     }
