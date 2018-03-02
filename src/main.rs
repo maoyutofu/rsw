@@ -13,11 +13,19 @@ use clap::App;
 use std::fs;
 use std::path::Path;
 use std::error::Error;
+use std::process;
 
 fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
     let dir = Path::new(src);
     // 遍历目录
-    for entry in fs::read_dir(dir).expect("read_dir call failed") {
+    let entrys = match fs::read_dir(dir) {
+        Err(why) => {
+            println!("{}: {}", why.description(), src);
+            process::exit(0x0100);
+        },
+        Ok(entrys) => entrys,
+    };
+    for entry in entrys {
         if let Ok(entry) = entry {
             let child = entry.path();
             let file_name = convert_path(child.to_str().unwrap());
