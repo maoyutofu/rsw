@@ -20,8 +20,8 @@ fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
     // 遍历目录
     let entrys = match fs::read_dir(dir) {
         Err(why) => {
-            println!("{}: {}", why.description(), src);
-            process::exit(0x0100);
+            println!("- {}: {}", why.description(), src);
+            process::exit(1);
         },
         Ok(entrys) => entrys,
     };

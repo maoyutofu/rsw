@@ -12,13 +12,24 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::process;
 
 pub fn render(public: &str, md_file: MdFile) {
     let yaml_docs = YamlLoader::load_from_str(md_file.yaml_str.as_str()).unwrap();
     let html_str = markdown_to_html(md_file.md_str.as_str(), &ComrakOptions::default());
 
+    let yaml_doc = &yaml_docs[0];
+
+    if yaml_doc["template"].as_str() == None {
+        println!("- No template file specified: {}", md_file.file_name);
+        process::exit(1);
+    }
+    if yaml_doc["title"].as_str() == None {
+        println!("- No title: {}", md_file.file_name);
+        process::exit(1);
+    }
     // 渲染模板
-    let html_content = render_template(public, yaml_docs, html_str.as_str());
+    let html_content = render_template(public, yaml_doc.clone(), html_str.as_str());
 
     // 生成目标文件
     generate_html(md_file.target_file_name.as_str(), html_content.as_str());
@@ -44,10 +55,8 @@ fn generate_html(html_path: &str, html_content: &str) {
     };
 }
 
-fn render_template(public: &str, yaml_docs: Vec<Yaml>, html_str: &str) -> String {
+fn render_template(public: &str, yaml_doc: Yaml, html_str: &str) -> String {
     // 从yaml数据中取出md文件的元数据
-    let yaml_doc = &yaml_docs[0];
-
     let template = yaml_doc["template"].as_str().unwrap();
     let template_names: Vec<&str> = template.rsplitn(2, '/').collect();
     let mut file_name = String::new();
