@@ -58,7 +58,7 @@ fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
 fn loop_parse(build: &str, public: &str, src: &str) {
     let path = Path::new(src);
     // 递归方式列出所有的源文件
-    for entry in fs::read_dir(path).expect("read_dir call failed") {
+    for entry in fs::read_dir(path).expect("Failed to read src directory") {
         if let Ok(entry) = entry {
             let child = entry.path();
             let file_name = child.to_str().unwrap();
