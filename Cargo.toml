@@ -8,6 +8,7 @@ regex = "0.2"
 yaml-rust = "0.3"
 comrak = "0.2.5"
 clap = {version="2.29.0", features=["yaml"]}
+toml = "0.5.1"
 
 [profile.release]
 lto = true
