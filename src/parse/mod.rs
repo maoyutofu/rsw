@@ -1,32 +1,34 @@
 extern crate regex;
 
-use util::*;
-
-use self::regex::Regex;
-
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+
+use util::*;
+
+use self::regex::Regex;
 
 #[derive(Debug)]
 #[derive(Clone)]
 pub struct MdFile {
     pub file_name: String,
     pub target_file_name: String,
+    pub page_id: String,
     pub yaml_str: String,
     pub md_str: String,
 }
 
 impl MdFile {
-     fn new<T: Into<String>>(file_name: T, target_file_name: T, yaml_str: T, md_str: T) -> Self {
-         MdFile {
-             file_name: file_name.into(),
-             target_file_name: target_file_name.into(),
-             yaml_str: yaml_str.into(),
-             md_str: md_str.into(),
-         }
-     }
+    fn new<T: Into<String>>(file_name: T, target_file_name: T, page_id: T, yaml_str: T, md_str: T) -> Self {
+        MdFile {
+            file_name: file_name.into(),
+            target_file_name: target_file_name.into(),
+            page_id: page_id.into(),
+            yaml_str: yaml_str.into(),
+            md_str: md_str.into(),
+        }
+    }
 }
 
 pub fn parse_md_file(build: &str, path: &Path) -> MdFile {
@@ -58,10 +60,14 @@ pub fn parse_md_file(build: &str, path: &Path) -> MdFile {
     // let file_name = path.to_str().unwrap();
     let file_name = convert_path(path.to_str().unwrap());
     // 将src路径转成build路径
-    let file_names:Vec<&str> = file_name.splitn(2, '/').collect();
+    let file_names: Vec<&str> = file_name.splitn(2, '/').collect();
     let target_file = format!("{}/{}", build, file_names[1]);
     // 将md扩展转成html
-    let target_files:Vec<&str> = target_file.rsplitn(2, '.').collect();
+    let target_files: Vec<&str> = target_file.rsplitn(2, '.').collect();
     let target_file_name = format!("{}{}", target_files[1], ".html");
-    return MdFile::new(file_name.clone(), target_file_name, String::from(yaml_str), md_str);
+
+    // 得到page_id
+    let file_names:Vec<&str>= file_names[1].rsplitn(2, '.').collect();
+    let page_id = file_names[1].replace("/", "_");
+    return MdFile::new(file_name.clone(), target_file_name, page_id, String::from(yaml_str), md_str);
 }

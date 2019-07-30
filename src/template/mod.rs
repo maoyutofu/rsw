@@ -1,12 +1,6 @@
+extern crate comrak;
 extern crate regex;
 extern crate yaml_rust;
-extern crate comrak;
-
-use parse::MdFile;
-use util::*;
-use self::regex::Regex;
-use self::yaml_rust::{YamlLoader, Yaml};
-use self::comrak::{markdown_to_html, ComrakOptions};
 
 use std::error::Error;
 use std::fs::File;
@@ -14,7 +8,14 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::process;
 
-pub fn render(public: &str, md_file: MdFile) {
+use parse::MdFile;
+use util::*;
+
+use self::comrak::{ComrakOptions, markdown_to_html};
+use self::regex::Regex;
+use self::yaml_rust::{Yaml, YamlLoader};
+
+pub fn render(site_name: &str, public: &str, md_file: MdFile) {
     let yaml_docs = YamlLoader::load_from_str(md_file.yaml_str.as_str()).unwrap();
     let html_str = markdown_to_html(md_file.md_str.as_str(), &ComrakOptions::default());
 
@@ -28,8 +29,9 @@ pub fn render(public: &str, md_file: MdFile) {
         println!("- No title: {}", md_file.file_name);
         process::exit(1);
     }
+
     // 渲染模板
-    let html_content = render_template(public, yaml_doc.clone(), html_str.as_str());
+    let html_content = render_template(site_name, public, yaml_doc.clone(), html_str.as_str(), md_file.page_id.as_str());
 
     // 生成目标文件
     generate_html(md_file.target_file_name.as_str(), html_content.as_str());
@@ -37,7 +39,7 @@ pub fn render(public: &str, md_file: MdFile) {
 
 fn generate_html(html_path: &str, html_content: &str) {
     // 拆分文件名，如`build/2017/01/01/happy.html`得到的是`["happy.html", "build/2017/01/01"]`
-    let dirs:Vec<&str> = html_path.rsplitn(2, '/').collect();
+    let dirs: Vec<&str> = html_path.rsplitn(2, '/').collect();
     create_not_exists(dirs[1]);
 
     let path = Path::new(html_path);
@@ -55,7 +57,7 @@ fn generate_html(html_path: &str, html_content: &str) {
     };
 }
 
-fn render_template(public: &str, yaml_doc: Yaml, html_str: &str) -> String {
+fn render_template(site_name: &str, public: &str, yaml_doc: Yaml, html_str: &str, page_id: &str) -> String {
     // 从yaml数据中取出md文件的元数据
     let template = yaml_doc["template"].as_str().unwrap();
     let template_names: Vec<&str> = template.rsplitn(2, '/').collect();
@@ -85,6 +87,10 @@ fn render_template(public: &str, yaml_doc: Yaml, html_str: &str) -> String {
         panic!("couldn't read {}: {}", display, err.description());
     }
 
+    // 将site_name渲染到模板中
+    let re_author = Regex::new(r"\{\{\s*site_name\s*\}\}").unwrap();
+    template_content = String::from(re_author.replace_all(template_content.as_str(), site_name));
+
     // 将author渲染到模板中
     let re_author = Regex::new(r"\{\{\s*author\s*\}\}").unwrap();
     template_content = String::from(re_author.replace_all(template_content.as_str(), yaml_doc["author"].as_str().unwrap_or("RustWriter")));
@@ -92,6 +98,10 @@ fn render_template(public: &str, yaml_doc: Yaml, html_str: &str) -> String {
     // 将title渲染到模板中
     let re_title = Regex::new(r"\{\{\s*title\s*\}\}").unwrap();
     template_content = String::from(re_title.replace_all(template_content.as_str(), yaml_doc["title"].as_str().unwrap()));
+
+    // 将page_id渲染到模板中
+    let re_content = Regex::new(r"\{\{\s*page_id\s*\}\}").unwrap();
+    template_content = String::from(re_content.replace_all(template_content.as_str(), page_id));
 
     // 将content渲染到模板中
     let re_content = Regex::new(r"\{\{\s*content\s*\}\}").unwrap();
