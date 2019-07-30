@@ -1,19 +1,40 @@
-extern crate rsw;
-extern crate regex;
 #[macro_use]
 extern crate clap;
+extern crate regex;
+extern crate rsw;
+extern crate toml;
 
-use rsw::util::*;
-use rsw::parse;
-use rsw::template;
-
-use regex::Regex;
-use clap::App;
-
+use std::error::Error;
 use std::fs;
 use std::path::Path;
-use std::error::Error;
 use std::process;
+
+use clap::App;
+use regex::Regex;
+use toml::Value;
+
+use rsw::parse;
+use rsw::template;
+use rsw::util::*;
+
+fn parse_toml() -> String {
+    let content = fs::read_to_string("rsw.toml").unwrap();
+
+    let value = match content.parse::<Value>() {
+        Err(why) => {
+            println!("- {}: {}", why.description(), "rsw.toml");
+            process::exit(1);
+        },
+        Ok(value) => value,
+    };
+
+    let site_name = match value.get("site_name") {
+        Some(site_name) => site_name.as_str().unwrap(),
+        None => "",
+    };
+
+    String::from(site_name)
+}
 
 fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
     let dir = Path::new(src);
@@ -22,7 +43,7 @@ fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
         Err(why) => {
             println!("- {}: {}", why.description(), src);
             process::exit(1);
-        },
+        }
         Ok(entrys) => entrys,
     };
     for entry in entrys {
@@ -39,7 +60,7 @@ fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
                 let dirs: Vec<&str> = file_name.splitn(2, '/').collect();
                 let new_file = format!("{}/{}", target, dirs[1]);
                 // 将目标文件从右边按`/`拆分得到目录
-                let dirs:Vec<&str> = new_file.rsplitn(2, '/').collect();
+                let dirs: Vec<&str> = new_file.rsplitn(2, '/').collect();
                 // 如果要复制的目标目录不存在，就创建
                 create_not_exists(dirs[1]);
                 // 复制文件
@@ -49,13 +70,13 @@ fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
                 }
             } else {
                 // 如果是目录，则继续递归
-                copy_files(re_ignore, target, &file_name); 
+                copy_files(re_ignore, target, &file_name);
             }
         }
     }
 }
 
-fn loop_parse(build: &str, public: &str, src: &str) {
+fn loop_parse(site_name: &str, build: &str, public: &str, src: &str) {
     let path = Path::new(src);
     // 递归方式列出所有的源文件
     for entry in fs::read_dir(path).expect("Failed to read src directory") {
@@ -68,9 +89,9 @@ fn loop_parse(build: &str, public: &str, src: &str) {
                     continue;
                 }
                 let md_file = parse::parse_md_file(build, &child);
-                template::render(public, md_file);
+                template::render(site_name, public, md_file);
             } else {
-                loop_parse(build, public, file_name);
+                loop_parse(site_name, build, public, file_name);
             }
         }
     }
@@ -98,9 +119,11 @@ fn main() {
         let re_template_file = Regex::new(r".*__.*\.html$").unwrap();
         copy_files(&re_template_file, BUILD_DIR, PUBLIC_DIR);
         let re_md_file = Regex::new(r".*\.md$").unwrap();
+        // 解析rsw.toml文件
+        let site_name = parse_toml();
         // copy src下的资源文件到build目录，但会忽略.md文件
         copy_files(&re_md_file, BUILD_DIR, SRC_DIR);
         // 解析md文件
-        loop_parse(BUILD_DIR, PUBLIC_DIR, SRC_DIR);
+        loop_parse(site_name.as_str(), BUILD_DIR, PUBLIC_DIR, SRC_DIR);
     }
 }
