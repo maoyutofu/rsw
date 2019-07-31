@@ -72,7 +72,7 @@ pub fn init_work_space(project_name: &str, public_dir: &str, src_dir: &str) {
         
         write_file(&index_tpl_name, HTML_STR);
 
-        write_file(&format!("{}/{}", project_name, "rsw.toml"), &format!("site_name = {}", project_name));
+        write_file(&format!("{}/{}", project_name, "rsw.toml"), &format!("site_name = \"{}\"", project_name));
         println!("{} created successfully", project_name);
 }
 
