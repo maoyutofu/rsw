@@ -20,7 +20,7 @@ pub struct MdFile {
 }
 
 impl MdFile {
-    fn new<T: Into<String>>(file_name: T, target_file_name: T, page_id: T, yaml_str: T, md_str: T) -> Self {
+    pub fn new<T: Into<String>>(file_name: T, target_file_name: T, page_id: T, yaml_str: T, md_str: T) -> Self {
         MdFile {
             file_name: file_name.into(),
             target_file_name: target_file_name.into(),
@@ -67,7 +67,17 @@ pub fn parse_md_file(build: &str, path: &Path) -> MdFile {
     let target_file_name = format!("{}{}", target_files[1], ".html");
 
     // 得到page_id
-    let file_names:Vec<&str>= file_names[1].rsplitn(2, '.').collect();
+    let file_names: Vec<&str> = file_names[1].rsplitn(2, '.').collect();
     let page_id = file_names[1].replace("/", "_");
     return MdFile::new(file_name.clone(), target_file_name, page_id, String::from(yaml_str), md_str);
+}
+
+#[derive(Debug)]
+#[derive(Clone)]
+pub struct MdHead<'a> {
+    pub template: &'a str,
+    pub title: &'a str,
+    pub author: &'a str,
+    pub keywords: &'a str,
+    pub description: &'a str,
 }

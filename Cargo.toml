@@ -1,6 +1,6 @@
 [package]
 name = "rsw"
-version = "0.1.2"
+version = "0.1.4"
 authors = ["dev-tang <dev-tang@foxmail.com>"]
 
 [dependencies]
