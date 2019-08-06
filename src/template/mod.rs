@@ -37,8 +37,10 @@ pub fn render(site_name: &str, public: &str, md_file: MdFile) {
 
     let keywords = yaml_doc["keywords"].as_str().unwrap_or(site_name);
 
-
     let description = yaml_doc["description"].as_str().unwrap_or(title);
+
+    let ctime = yaml_doc["ctime"].as_str().unwrap_or("");
+    let mtime = yaml_doc["mtime"].as_str().unwrap_or("");
 
     let md_head = MdHead {
         template: template,
@@ -46,6 +48,8 @@ pub fn render(site_name: &str, public: &str, md_file: MdFile) {
         author: author,
         keywords: keywords,
         description: description,
+        ctime: ctime,
+        mtime: mtime,
     };
 
     // 渲染模板
@@ -124,6 +128,14 @@ fn render_template(site_name: &str, public: &str, md_head: MdHead, html_str: &st
     // 将description渲染到模板中
     let re_description = Regex::new(r"\{\{\s*description\s*\}\}").unwrap();
     template_content = String::from(re_description.replace_all(template_content.as_str(), md_head.description));
+
+    // 将ctime渲染到模板中
+    let re_ctime = Regex::new(r"\{\{\s*ctime\s*\}\}").unwrap();
+    template_content = String::from(re_ctime.replace_all(template_content.as_str(), md_head.ctime));
+
+    // 将mtime渲染到模板中
+    let re_mtime = Regex::new(r"\{\{\s*mtime\s*\}\}").unwrap();
+    template_content = String::from(re_mtime.replace_all(template_content.as_str(), md_head.mtime));
 
     // 将page_id渲染到模板中
     let re_content = Regex::new(r"\{\{\s*page_id\s*\}\}").unwrap();

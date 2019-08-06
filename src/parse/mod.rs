@@ -80,4 +80,6 @@ pub struct MdHead<'a> {
     pub author: &'a str,
     pub keywords: &'a str,
     pub description: &'a str,
+    pub ctime: &'a str,
+    pub mtime: &'a str
 }
