@@ -24,7 +24,7 @@ fn parse_toml() -> String {
         Err(why) => {
             println!("- {}: {}", why.description(), "rsw.toml");
             process::exit(1);
-        },
+        }
         Ok(value) => value,
     };
 
@@ -63,6 +63,9 @@ fn copy_files(re_ignore: &Regex, target: &str, src: &str) {
                 let dirs: Vec<&str> = new_file.rsplitn(2, '/').collect();
                 // 如果要复制的目标目录不存在，就创建
                 create_not_exists(dirs[1]);
+                if is_continue(&file_name, &new_file) {
+                    continue;
+                }
                 // 复制文件
                 match fs::copy(file_name.clone(), &new_file) {
                     Err(why) => panic!("{} -> {}: {}", file_name, new_file, why.description()),
@@ -89,6 +92,12 @@ fn loop_parse(site_name: &str, build: &str, public: &str, src: &str) {
                     continue;
                 }
                 let md_file = parse::parse_md_file(build, &child);
+                // 判断是否需要重新生成
+                let target_file_name = md_file.target_file_name.clone();
+
+                if is_continue(file_name, &target_file_name) {
+                    continue;
+                }
                 template::render(site_name, public, md_file);
             } else {
                 loop_parse(site_name, build, public, file_name);
