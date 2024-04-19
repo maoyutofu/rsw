@@ -32,7 +32,7 @@
 将build目录下的文件上传到你的服务器就可以了。
 
 ### 案例
-- [dev-tang.com](https://dev-tang.com/)
+- [myblog](https://jizhong.plus/)
 - [rsw-example](http://dev-tang.gitee.io/pages/rsw-example/) - [src](https://github.com/tjz101/rsw-example)
 - [rust-case-study-manual](https://www.irust.org/rust-case-study-manual/)
 
